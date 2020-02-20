@@ -15,9 +15,11 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 
+#include <device.h>
+#include <drivers/i2c.h>
+
 #define DEVICE_NAME CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
-
 
 static volatile u8_t mfg_data[] = { 0x00, 0x00, 0xaa, 0xbb };
 
@@ -51,18 +53,17 @@ unsigned int count = 0;
 // sensor
 static struct device* dev_bme280;
 
-
 // print BME280 data
 void update_sensor_data()
 {
 
     // get sensor data
-    struct sensor_value temp, humidity;
+    struct sensor_value temp, press, humidity;
 
-    //sensor_sample_fetch(dev_bme280);
-    //sensor_channel_get(dev_bme280, SENSOR_CHAN_AMBIENT_TEMP, &temp);	
-    //sensor_channel_get(dev_bme280, SENSOR_CHAN_PRESS, &press);
-    //sensor_channel_get(dev_bme280, SENSOR_CHAN_HUMIDITY, &humidity);
+    sensor_sample_fetch(dev_bme280);
+    sensor_channel_get(dev_bme280, SENSOR_CHAN_AMBIENT_TEMP, &temp);	
+    sensor_channel_get(dev_bme280, SENSOR_CHAN_PRESS, &press);
+    sensor_channel_get(dev_bme280, SENSOR_CHAN_HUMIDITY, &humidity);
 
 	mfg_data[2] = (uint8_t) temp.val1;
 	mfg_data[3] = (uint8_t) humidity.val1;
