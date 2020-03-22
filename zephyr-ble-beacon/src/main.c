@@ -11,6 +11,7 @@
 #include <sys/printk.h>
 #include <sys/util.h>
 #include <sensor.h>
+#include <gpio.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -48,37 +49,40 @@ static void bt_ready(int err)
 
 }
 
-unsigned int count = 0;
-
 // sensor
 static struct device* dev_bme280;
+
 
 // print BME280 data
 void update_sensor_data()
 {
 
     // get sensor data
-    struct sensor_value temp, press, humidity;
+    struct sensor_value temp,humidity;
 
     sensor_sample_fetch(dev_bme280);
     sensor_channel_get(dev_bme280, SENSOR_CHAN_AMBIENT_TEMP, &temp);	
-    sensor_channel_get(dev_bme280, SENSOR_CHAN_PRESS, &press);
     sensor_channel_get(dev_bme280, SENSOR_CHAN_HUMIDITY, &humidity);
 
 	mfg_data[2] = (uint8_t) temp.val1;
 	mfg_data[3] = (uint8_t) humidity.val1;
-
-	count++;
-
-	mfg_data[2] = (uint8_t) count;
-	mfg_data[3] = (uint8_t) count;
-
+	
 }
 
 
 void main(void)
 {
 	int err;
+	
+	struct device* port0 = device_get_binding("GPIO_0");
+
+	gpio_pin_configure(port0, 8, GPIO_DIR_OUT);
+
+    // flash  LED
+	gpio_pin_write(port0, 8, 0);
+	k_sleep(1000);
+	gpio_pin_write(port0, 8, 1);
+	k_sleep(1000);
 	
 	/* Initialize the Bluetooth Subsystem */
 	err = bt_enable(bt_ready);

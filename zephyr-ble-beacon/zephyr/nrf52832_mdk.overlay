@@ -1,0 +1,10 @@
+&i2c0 {
+        status = "okay";
+	sda-pin = <2>;
+	scl-pin = <3>;
+        bme280@76 {
+                compatible = "bosch,bme280";
+                label = "BME280";
+                reg = <0x76>;
+        };
+};
